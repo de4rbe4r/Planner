@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Добавление задачи к проекту</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js" integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ" crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/index.html">Главная</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDarkDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Работники
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="/html/Workers/WorkersList.html">Список всех работников</a></li>
+                            <li><a class="dropdown-item" href="/html/Workers/AddWorker.html">Добавить нового работника</a></li>
+                            <li><a class="dropdown-item" href="/html/Workers/FindWorker.html">Поиск работника</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Проекты
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="/html/Projects/ProjectsList.html">Список всех проектов</a></li>
+                            <li><a class="dropdown-item" href="/html/Projects/AddProject.html">Добавить новый проект</a></li>
+                            <li><a class="dropdown-item" href="/html/Projects/FindProject.html">Поиск проекта по названию</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Задачи
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="/html/ProjectTasks/ProjectTasksList.html">Добавить задачу к проекту</a></li>
+                            <li><a class="dropdown-item" href="/html/ProjectTasks/FindProjectTask.html">Поиск задачи</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <br>
+    <div class="container">
+        <div class="mb-3">
+            <label class="form-label">Выберите проект</label>
+        </div>
+        <div class="mb-3">
+            <select class="form-select" id="projectSelect" onchange="getProjectTasks()"></select>
+        </div>
+    </div>
+
+    <form class="container" method="POST" onsubmit="addProjectTask()" action="javascript:void(0);">
+        <div class="mb-3">
+            <label class="form-label">Название задачи</label>
+            <input type="text" class="form-control" id="title" placeholder="Создать веб-интерфейс" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Описание</label>
+            <textarea class="form-control" id="description" rows="3" placeholder="Введите описание проекта"></textarea>
+        </div>
+        <div class="mb-3" id="tutorContainer">
+            <label class="form-label">Ответственные за проект</label>
+            <select class="form-select" id="tutor_1">
+            </select>
+        </div>
+        <div class="mb-3">
+            <button type="button" class="btn btn-sm btn-primary" id="addTutor" onclick="addTutorSelect()">Добавить ответственного</button>
+        </div>
+        <button type="submit" class="btn btn-primary">Создать задачу</button>
+    </form>
+
+    <table class="table container">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Название задачи</th>
+                <th scope="col">Описание</th>
+                <th scope="col">Дата создания</th>
+                <th scope="col">Список отвественных</th>
+                <th scope="col">Отметка о выполнении</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody id="projectTasksList"></tbody>
+    </table>
+
+    <div class="modal fade" id="editModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Редактирование задачи проекта</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="closeModal()" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="container">
+                        <div class="mb-3">
+                            <input type="hidden" id="edit-id">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Название задачи</label>
+                            <input type="text" class="form-control" id="edit-title" placeholder="Разработка ПО" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Описание</label>
+                            <textarea class="form-control" id="edit-description" rows="3" placeholder="Введите описание задачи"></textarea>
+                        </div>
+                        <div class="mb-3" id="edit-tutorContainer">
+                            <label class="form-label">Ответственные за задачу</label>
+                            <select class="form-select" id="edit-tutor_1">
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-sm btn-primary" id="edit-addTutor" onclick="addEditTutorSelect()">Добавить ответственного</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnCloseModal" class="btn btn-secondary" onclick="closeModal()" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" onclick="updateProjectTask()">Сохранить изменения</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/projectTask.js" asp-append-version="true"></script>
+    <script type="text/javascript">
+        getProjects();
+        getWorkersArray();
+    </script>
+</body>
+</html>
