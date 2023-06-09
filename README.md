@@ -29,4 +29,3 @@ A search is implemented for each entity (employee, project, task). For an employ
 * JavaScript
 * HTML
 * Bootstrap-5 
----
